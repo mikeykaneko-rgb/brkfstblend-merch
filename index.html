@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#080808" id="theme-meta">
+<link rel="apple-touch-icon" id="ati" href="">
+<title id="page-title">brkfstblend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ── THEMES ─────────────────────────────── */
+:root{--bg:#080808;--s1:#141414;--s2:#1e1e1e;--s3:#2a2a2a;--ac:#e8b44b;--at:#000;--tx:#f0f0f0;--tm:#888;--td:#444;--br:rgba(255,255,255,.07);--ok:#3fa76e;--err:#e84b4b;--r:12px;--rs:8px;--nh:62px;--hh:56px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+[data-theme=light]{--bg:#f0f0f0;--s1:#fff;--s2:#e8e8e8;--s3:#d0d0d0;--br:rgba(0,0,0,.07);--ac:#1a1a1a;--at:#fff;--tx:#111;--tm:#666;--td:#bbb}
+[data-theme=navy]{--bg:#06111e;--s1:#0d1e30;--s2:#162848;--s3:#1e3260;--br:rgba(80,150,240,.1);--ac:#5b9bd5;--at:#fff;--tx:#d8eaf8;--tm:#5a7ea0;--td:#2a4060}
+[data-theme=warm]{--bg:#100600;--s1:#1e0e00;--s2:#2c1800;--s3:#3a2200;--br:rgba(255,140,50,.1);--ac:#e8864b;--at:#fff;--tx:#fff0e0;--tm:#9a6040;--td:#602010}
+[data-theme=forest]{--bg:#030a03;--s1:#091509;--s2:#0f200f;--s3:#162916;--br:rgba(80,190,80,.1);--ac:#56b056;--at:#fff;--tx:#e0ffe0;--tm:#508050;--td:#284028}
+/* ── RESET ───────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Noto Sans JP',sans-serif;font-size:15px;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+.mono{font-family:'DM Mono',monospace}
+button{border:none;cursor:pointer;font-family:inherit;color:inherit;touch-action:manipulation;user-select:none;outline:none;background:none}
+input,select,textarea{font-family:inherit;color:var(--tx);background:var(--s2);border:1px solid var(--br);border-radius:var(--rs);padding:10px 14px;width:100%;outline:none;transition:border-color .15s}
+input:focus,textarea:focus{border-color:var(--ac)}
+img{display:block}.hidden{display:none!important}
+/* ── LAYOUT ──────────────────────────────── */
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;position:relative;overflow:hidden}
+/* ── HEADER ──────────────────────────────── */
+#hdr{display:flex;align-items:center;gap:10px;padding:calc(var(--st)+14px) 16px 14px;background:var(--s1);border-bottom:1px solid var(--br);flex-shrink:0;z-index:10;transition:background .25s}
+#hdr-logo{width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0}
+#hdr-name{font-size:18px;font-weight:900;letter-spacing:-.5px}
+#hdr-gig{margin-left:auto;font-size:11px;color:var(--tm);text-align:right;max-width:150px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* ── SCREENS ─────────────────────────────── */
+.screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nh)+var(--sb)+8px)}.screen.hidden{display:none}
+/* ── NAV ─────────────────────────────────── */
+#nav{display:flex;background:var(--s1);border-top:1px solid var(--br);padding-bottom:var(--sb);flex-shrink:0;transition:background .25s}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0;color:var(--tm);font-size:10px;font-weight:500;transition:color .15s}.nav-btn.active{color:var(--ac)}.nav-icon{font-size:21px;line-height:1}
+/* ── PRODUCT GRID ────────────────────────── */
+#prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
+@media(min-width:380px){#prod-grid{grid-template-columns:repeat(3,1fr)}}
+.pc{background:var(--s1);border:1px solid var(--br);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;position:relative;cursor:pointer;transition:transform .1s,background .1s;overflow:hidden;aspect-ratio:4/3;padding:10px}
+.pc:active{transform:scale(.94);background:var(--s2)}
+.pc.has-photo{padding:0}
+.pc-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pc-photo-overlay{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,.75))}
+.pc-emoji{font-size:26px;line-height:1.2;position:relative}
+.pc-name{font-size:11px;font-weight:700;line-height:1.2;position:relative}
+.pc-price{font-size:12px;font-weight:500;color:var(--ac);font-family:'DM Mono',monospace;position:relative}
+.pc-sizes{font-size:10px;color:var(--tm);position:relative}
+.pc.has-photo .pc-name,.pc.has-photo .pc-price{color:#fff;position:absolute;bottom:0;left:0;right:0;text-align:left;padding:4px 8px}
+.pc.has-photo .pc-name{bottom:16px;font-size:12px}
+.pc.has-photo .pc-price{bottom:2px;font-size:11px;color:rgba(255,255,255,.8)}
+.pc.has-photo .pc-emoji{position:absolute;top:6px;right:6px;font-size:18px;background:rgba(0,0,0,.4);border-radius:6px;padding:2px 4px}
+.pc-bbadge{position:absolute;top:7px;left:7px;background:var(--ac);color:var(--at);font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;min-width:20px;font-family:'DM Mono',monospace;z-index:2}
+.pc-lbadge{position:absolute;top:7px;right:7px;background:var(--err);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;z-index:2}
+.pc.out-of-stock{opacity:.38;pointer-events:none}
+/* ── BASKET ──────────────────────────────── */
+#basket{background:var(--s1);margin:0 12px 10px;border-radius:var(--r);border:1px solid var(--br);overflow:hidden;transition:background .25s}
+.bsk-empty{padding:24px;text-align:center;color:var(--tm);font-size:13px}
+.bsk-item{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--br)}
+.bsk-emoji{font-size:18px;flex-shrink:0}
+.bsk-info{flex:1;min-width:0}
+.bsk-name{font-size:13px;font-weight:500;line-height:1.2}
+.bsk-note{font-size:10px;color:var(--tm);margin-top:1px}
+.bsk-qty{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.qty-btn{width:28px;height:28px;border-radius:50%;background:var(--s2);font-size:16px;display:flex;align-items:center;justify-content:center}.qty-btn:active{background:var(--s3)}
+.qty-num{font-size:15px;font-weight:700;min-width:18px;text-align:center;font-family:'DM Mono',monospace}
+.bsk-price{font-size:13px;min-width:60px;text-align:right;font-family:'DM Mono',monospace;cursor:pointer;padding:4px}
+.bsk-price.overridden{color:var(--ac)}
+.bsk-price:active{opacity:.7}
+.bsk-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
+.bsk-total{font-size:24px;font-weight:900;font-family:'DM Mono',monospace}
+.bsk-clear{font-size:12px;color:var(--err);padding:4px 12px;border-radius:20px;border:1px solid var(--err)}.bsk-clear:active{background:var(--err);color:#fff}
+/* ── PAY ROW ─────────────────────────────── */
+#pay-row{display:flex;gap:10px;padding:0 12px 12px;flex-wrap:wrap}
+.pay-btn{flex:1;min-width:120px;padding:14px 10px;border-radius:var(--r);font-size:14px;font-weight:700;text-align:center;line-height:1.4;transition:transform .1s,filter .1s}.pay-btn:active{transform:scale(.96);filter:brightness(.88)}
+.pay-amt{display:block;font-size:18px;font-family:'DM Mono',monospace;letter-spacing:-.5px}
+/* ── OVERLAY / SHEET ─────────────────────── */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:flex;align-items:flex-end;opacity:0;transition:opacity .22s;pointer-events:none}
+#overlay.show{opacity:1;pointer-events:all}
+.sheet{background:var(--s1);border-radius:var(--r) var(--r) 0 0;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:calc(20px+var(--sb));transform:translateY(100%);transition:background .25s,transform .3s cubic-bezier(.32,.72,0,1)}
+#overlay.show .sheet{transform:translateY(0)}
+.sh-handle{width:36px;height:4px;background:var(--s3);border-radius:2px;margin:12px auto 0}
+.sh-title{font-size:18px;font-weight:700;padding:14px 20px 12px}
+/* ── SIZE PICKER ─────────────────────────── */
+.sz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;padding:12px 16px 16px}
+.sz-btn{background:var(--s2);border:1px solid var(--br);border-radius:var(--rs);padding:14px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .1s,background .1s}
+.sz-btn:active{transform:scale(.94);background:var(--ac);border-color:var(--ac);color:var(--at)}
+.sz-label{font-size:17px;font-weight:700}.sz-price{font-size:12px;color:var(--tm);font-family:'DM Mono',monospace}.sz-stock{font-size:10px}.sz-low{color:var(--err);font-weight:700}.sz-out{opacity:.35;pointer-events:none}
+/* ── PAYMENT MODALS ──────────────────────── */
+.pm-wrap{padding:20px}
+.pm-total{font-size:44px;font-weight:900;text-align:center;color:var(--ac);letter-spacing:-2px;margin-bottom:20px;font-family:'DM Mono',monospace}
+.pm-label{font-size:11px;color:var(--tm);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.pm-recv{font-size:28px;font-weight:700;text-align:center;font-family:'DM Mono',monospace;padding:12px;letter-spacing:-1px}
+.pm-change{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:14px 16px;background:var(--s2);border-radius:var(--rs)}
+.pm-change-label{font-size:13px;color:var(--tm);font-weight:500}
+.pm-change-val{font-size:24px;font-weight:900;color:var(--ok);font-family:'DM Mono',monospace}
+.pm-change-neg{color:var(--err)}
+.pm-confirm{display:block;width:100%;margin-top:14px;padding:16px;border-radius:var(--r);font-size:17px;font-weight:700;color:#fff;transition:filter .1s}.pm-confirm:active{filter:brightness(.88)}
+.pm-simple-amt{font-size:52px;font-weight:900;text-align:center;letter-spacing:-2px;margin:10px 0;font-family:'DM Mono',monospace}
+.pm-simple-hint{text-align:center;color:var(--tm);font-size:13px;margin-bottom:18px;line-height:1.5;padding:0 20px}
+/* ── PRICE OVERRIDE ──────────────────────── */
+.po-orig{text-align:center;color:var(--tm);margin-bottom:14px;font-size:13px}
+.po-fields{display:flex;flex-direction:column;gap:10px}
+.po-field-label{font-size:11px;color:var(--tm);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+/* ── SUCCESS ─────────────────────────────── */
+#success{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;opacity:0;pointer-events:none;transition:opacity .25s}
+#success.show{opacity:1;pointer-events:all}
+.su-check{font-size:72px;animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.su-amt{font-size:36px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-1px}
+.su-meth{font-size:16px;color:var(--tm);margin-top:2px}
+.su-msg{font-size:14px;color:var(--ac);margin-top:6px;text-align:center;padding:0 20px}
+.su-tap{font-size:12px;color:var(--td);margin-top:16px}
+/* ── LOG ─────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+.stat-card{background:var(--s1);border:1px solid var(--br);border-radius:var(--r);padding:14px;transition:background .25s}
+.stat-label{font-size:11px;color:var(--tm);font-weight:500;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-.5px}
+.sec-head{padding:16px 16px 6px;font-size:11px;font-weight:700;color:var(--tm);letter-spacing:.8px;text-transform:uppercase}
+.log-item-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--br)}
+.lir-name{flex:1;font-size:13px;font-weight:500}
+.lir-qty{font-size:12px;color:var(--tm);font-family:'DM Mono',monospace}
+.lir-rev{font-size:14px;font-weight:700;font-family:'DM Mono',monospace}
+.txn-card{margin:0 12px 6px;background:var(--s1);border:1px solid var(--br);border-radius:var(--rs);display:flex;align-items:center;gap:10px;padding:11px 14px;transition:background .25s}
+.txn-n{font-size:11px;color:var(--td);min-width:24px;font-family:'DM Mono',monospace}
+.txn-body{flex:1;min-width:0}
+.txn-desc{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txn-meta{font-size:10px;color:var(--tm);margin-top:2px}
+.txn-amt{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
+.txn-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;color:#fff}
+.del-txn{color:var(--tm);font-size:16px;padding:4px}.del-txn:active{color:var(--err)}
+.exp-row{display:flex;gap:10px;padding:14px 12px}
+.exp-btn{flex:1;padding:13px;border-radius:var(--r);background:var(--s1);border:1px solid var(--br);font-weight:700;font-size:13px}.exp-btn:active{background:var(--s2)}
+.empty-log{padding:40px 20px;text-align:center;color:var(--tm)}
+/* ── SETTINGS ────────────────────────────── */
+.stabs{display:flex;background:var(--s2);margin:12px;border-radius:var(--rs);padding:3px;gap:2px;transition:background .25s}
+.stab{flex:1;padding:7px 4px;border-radius:6px;font-size:11px;font-weight:600;color:var(--tm);text-align:center;transition:background .15s,color .15s}
+.stab.active{background:var(--s1);color:var(--tx)}
+.s-group{margin:12px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;transition:background .25s}
+.s-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--br)}.s-row:last-child{border-bottom:none}
+.s-row-label{flex:1;font-size:14px;font-weight:500}
+.s-row-sub{font-size:11px;color:var(--tm);margin-top:2px}
+.s-row input{max-width:160px;font-size:13px;padding:8px 12px}
+.lang-pill{display:flex;background:var(--s2);border-radius:20px;overflow:hidden}
+.lang-opt{flex:1;padding:6px 14px;font-size:12px;font-weight:700;color:var(--tm);text-align:center;border-radius:20px;transition:background .15s,color .15s}
+.lang-opt.active{background:var(--ac);color:var(--at)}
+.theme-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px 16px 14px}
+.theme-sw{height:42px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid transparent;cursor:pointer;transition:transform .1s,border-color .15s}
+.theme-sw.active{border-color:var(--ac);transform:scale(1.06)}
+.logo-btn{width:68px;height:68px;border-radius:12px;background:var(--s2);border:2px dashed var(--br);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;overflow:hidden;flex-shrink:0}
+.logo-btn img{width:100%;height:100%;object-fit:cover}.logo-btn span{font-size:10px;color:var(--tm)}
+.toggle-btn{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--br);color:var(--tm)}
+.toggle-btn.on{background:var(--ac);border-color:var(--ac);color:var(--at)}
+.gig-block{margin:12px;display:flex;flex-direction:column;gap:10px}
+.gig-block label{font-size:11px;color:var(--tm);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.new-gig-btn{padding:14px;border-radius:var(--r);background:var(--err);color:#fff;font-size:15px;font-weight:700;width:100%;transition:filter .1s}.new-gig-btn:active{filter:brightness(.88)}
+/* Product settings list */
+.ps-card{margin:0 12px 8px;background:var(--s1);border:1px solid var(--br);border-radius:var(--rs);display:flex;align-items:center;gap:10px;padding:10px 12px;transition:background .25s}
+.ps-thumb{width:44px;height:44px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0}
+.ps-thumb img{width:100%;height:100%;object-fit:cover}
+.ps-info{flex:1;min-width:0}
+.ps-name{font-size:14px;font-weight:600}
+.ps-detail{font-size:11px;color:var(--tm);margin-top:2px;font-family:'DM Mono',monospace}
+.ps-ctrls{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.ps-btn{width:32px;height:32px;border-radius:8px;background:var(--s2);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.ps-btn:active{background:var(--s3)}.ps-btn:disabled{opacity:.3;pointer-events:none}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 12px 12px;padding:13px;border-radius:var(--r);border:1.5px dashed var(--br);color:var(--tm);font-size:14px;font-weight:600}.add-btn:active{background:var(--s2)}
+/* Payment methods list */
+.pm-card{margin:0 12px 8px;background:var(--s1);border:1px solid var(--br);border-radius:var(--rs);display:flex;align-items:center;gap:10px;padding:12px 14px}
+.pm-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
+.pm-mname{flex:1;font-size:14px;font-weight:600}
+.pm-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--s2);color:var(--tm);font-weight:600}
+/* Product / Method editor sheet */
+.pe-body{padding:12px 20px 16px;display:flex;flex-direction:column;gap:12px}
+.pe-label{font-size:11px;color:var(--tm);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.pe-photo-area{display:flex;align-items:center;gap:12px}
+.pe-thumb{width:72px;height:72px;border-radius:12px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden;flex-shrink:0;border:1.5px solid var(--br)}
+.pe-thumb img{width:100%;height:100%;object-fit:cover}
+.pe-photo-btns{display:flex;flex-direction:column;gap:6px}
+.pe-photo-btn{font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;background:var(--s2);border:1px solid var(--br)}.pe-photo-btn:active{background:var(--s3)}
+.pv-edit{display:flex;flex-direction:column;gap:8px}
+.pv-edit-row{display:grid;grid-template-columns:70px 1fr 1fr auto;gap:8px;align-items:center}
+.pv-edit-row input{font-size:13px;padding:8px 10px;text-align:right}
+.pv-edit-row input:first-child{text-align:center}
+.pv-labels{display:grid;grid-template-columns:70px 1fr 1fr auto;gap:8px;font-size:10px;color:var(--tm);font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:2px}
+.pv-del-btn{width:28px;height:28px;border-radius:50%;background:var(--s2);color:var(--err);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.pv-del-btn:active{background:var(--err);color:#fff}
+.pv-add-btn{padding:10px;border:1.5px dashed var(--br);border-radius:var(--rs);color:var(--tm);font-size:13px;font-weight:600;text-align:center}.pv-add-btn:active{background:var(--s2)}
+.pe-actions{display:flex;gap:10px;margin-top:4px}
+.pe-save{flex:1;padding:14px;border-radius:var(--r);background:var(--ac);color:var(--at);font-size:15px;font-weight:700;transition:filter .1s}.pe-save:active{filter:brightness(.88)}
+.pe-delete{padding:14px 20px;border-radius:var(--r);border:1.5px solid var(--err);color:var(--err);font-size:14px;font-weight:700}.pe-delete:active{background:var(--err);color:#fff}
+.color-row{display:flex;align-items:center;gap:12px}
+.color-preview{width:40px;height:40px;border-radius:8px;flex-shrink:0;transition:background .15s}
+/* Setup screen */
+#setup{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px 24px;height:100%;text-align:center}
+.setup-icon{font-size:64px;line-height:1}
+.setup-brand{font-size:30px;font-weight:900;letter-spacing:-1px}
+.setup-sub{font-size:14px;color:var(--tm)}
+.setup-form{width:100%;display:flex;flex-direction:column;gap:14px}
+.setup-label{font-size:11px;color:var(--tm);font-weight:700;letter-spacing:.5px;text-transform:uppercase;text-align:left;display:block;margin-bottom:4px}
+.setup-theme-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.setup-sw{height:48px;border-radius:var(--rs);border:2px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .1s,border-color .1s}
+.setup-sw.active{border-color:var(--ac);transform:scale(1.08)}
+.start-btn{padding:16px;background:var(--ac);color:var(--at);border-radius:var(--r);font-size:17px;font-weight:900;width:100%;transition:filter .1s}.start-btn:active{filter:brightness(.88)}
+/* Toast */
+#toast{position:fixed;bottom:calc(var(--nh)+var(--sb)+14px);left:50%;transform:translateX(-50%);background:var(--s2);color:var(--tx);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;border:1px solid var(--br)}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="setup" class="hidden">
+  <div class="setup-icon">🛍️</div>
+  <div><div class="setup-brand" id="su-brand">brkfstblend</div><div class="setup-sub">merch POS</div></div>
+  <div class="setup-form">
+    <div><span class="setup-label" id="su-ltheme">テーマを選ぶ</span><div class="setup-theme-row" id="su-themes"></div></div>
+    <div><span class="setup-label" id="su-lgig">ギグ名</span><input id="su-gig" type="text" placeholder="Outdoor Park 大阪"></div>
+    <div><span class="setup-label" id="su-ldate">日付</span><input id="su-date" type="date"></div>
+    <button class="start-btn" id="su-start" onclick="finishSetup()">はじめる →</button>
+  </div>
+</div>
+<div id="main" class="hidden">
+  <div id="hdr">
+    <img id="hdr-logo" class="hidden" src="" alt="">
+    <span id="hdr-name">brkfstblend</span>
+    <span id="hdr-gig"></span>
+  </div>
+  <div id="screen-pos" class="screen hidden">
+    <div id="prod-grid"></div>
+    <div id="basket"></div>
+    <div id="pay-row"></div>
+  </div>
+  <div id="screen-log" class="screen hidden"><div id="log-content"></div></div>
+  <div id="screen-settings" class="screen hidden">
+    <div class="stabs" id="stabs"></div>
+    <div id="s-content"></div>
+  </div>
+  <nav id="nav"></nav>
+</div>
+<div id="overlay" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div id="sh-body"></div>
+  </div>
+</div>
+<div id="success" onclick="dismissSuccess()">
+  <div class="su-check">✅</div>
+  <div class="su-amt" id="su-amt"></div>
+  <div class="su-meth" id="su-meth"></div>
+  <div class="su-msg" id="su-msg"></div>
+  <div class="su-tap" id="su-tap">タップして閉じる</div>
+</div>
+<div id="toast"></div>
+<input type="file" id="logo-inp" accept="image/*" style="display:none" onchange="handleLogo(event)">
+<input type="file" id="prod-photo-inp" accept="image/*" style="display:none" onchange="handleProdPhoto(event)">
+</div>
+<script>
+'use strict';
+/* ── TRANSLATIONS ───────────────────────── */
+const T={
+ja:{pos:'レジ',log:'履歴',settings:'設定',emptyBasket:'商品をタップして追加',
+total:'合計',recv:'受取金額',change:'お釣り',confirmCash:'現金で完了',
+clear:'クリア',stockOut:'在庫なし',left:'残り',noTxns:'まだ販売がありません',
+copied:'コピーしました！',undone:'取り消しました',tabs:['ギグ','デザイン','商品','支払方法'],
+gigName:'ギグ名',gigDate:'日付',newGig:'新しいギグを開始',confirmNew:'現在の販売履歴をリセットしますか？',
+theme:'テーマ',lang:'言語',appName:'アプリ名',logo:'ロゴ',price:'単価',stock:'在庫',
+cashTotal:'現金売上',ppTotal:'その他売上',grand:'合計売上',txnCnt:'取引数',
+itemsSold:'商品明細',txnLog:'取引履歴',copyBtn:'📋 コピー',csvBtn:'⬇ CSV',
+editProd:'商品を編集',newProd:'商品を追加',editMeth:'支払方法を編集',newMeth:'支払方法を追加',
+addSize:'＋ サイズを追加',saveBtn:'保存',deleteBtn:'削除',addProd:'＋ 商品を追加',addMeth:'＋ 支払方法を追加',
+overrideLbl:'価格を変更',origPrice:'元値',newPrice:'新しい価格',reason:'理由（任意）',apply:'適用',
+successMsg:'完了メッセージ',successSound:'完了音',lowStockLabel:'在庫少警告（残り何個から）',
+cancelBtn:'キャンセル',photoLbl:'写真',emojiLbl:'絵文字',nameLbl:'商品名',changeCalc:'お釣り計算あり',
+tap:'タップして閉じる',noPhotoBtn:'写真なし',uploadPhotoBtn:'写真を変更',
+colorLbl:'ボタン色'},
+en:{pos:'POS',log:'Log',settings:'Settings',emptyBasket:'Tap a product to add',
+total:'Total',recv:'Received',change:'Change',confirmCash:'Pay',
+clear:'Clear',stockOut:'Sold out',left:'Left',noTxns:'No sales yet',
+copied:'Copied!',undone:'Sale undone',tabs:['Gig','Design','Products','Methods'],
+gigName:'Gig name',gigDate:'Date',newGig:'New Gig',confirmNew:'Reset current gig sales?',
+theme:'Theme',lang:'Language',appName:'App name',logo:'Logo',price:'Price',stock:'Stock',
+cashTotal:'Cash sales',ppTotal:'Other sales',grand:'Total sales',txnCnt:'Transactions',
+itemsSold:'Items sold',txnLog:'Transaction log',copyBtn:'📋 Copy',csvBtn:'⬇ CSV',
+editProd:'Edit product',newProd:'Add product',editMeth:'Edit method',newMeth:'Add method',
+addSize:'+ Add size',saveBtn:'Save',deleteBtn:'Delete',addProd:'+ Add product',addMeth:'+ Add method',
+overrideLbl:'Change price',origPrice:'Original',newPrice:'New price',reason:'Reason (optional)',apply:'Apply',
+successMsg:'Success message',successSound:'Success sound',lowStockLabel:'Low stock warning (remaining count)',
+cancelBtn:'Cancel',photoLbl:'Photo',emojiLbl:'Emoji',nameLbl:'Name',changeCalc:'Calculate change',
+tap:'Tap to close',noPhotoBtn:'Remove photo',uploadPhotoBtn:'Change photo',
+colorLbl:'Button color'}};
+
+/* ── THEMES & DEFAULTS ──────────────────── */
+const THEMES=[
+  {id:'dark',bg:'#080808',emoji:'🖤'},
+  {id:'light',bg:'#f2f2f2',emoji:'🤍'},
+  {id:'navy',bg:'#06111e',emoji:'💙'},
+  {id:'warm',bg:'#100600',emoji:'🧡'},
+  {id:'forest',bg:'#030a03',emoji:'💚'},
+];
+const DEF_PRODUCTS=[
+  {id:'tee-grey',emoji:'👕',name:'UFO Tee Grey',photo:null,v:[{s:'M',p:0,st:15},{s:'L',p:0,st:5},{s:'XL',p:0,st:3}]},
+  {id:'tee-pink',emoji:'👕',name:'UFO Tee Pink',photo:null,v:[{s:'M',p:0,st:16},{s:'L',p:0,st:10},{s:'XL',p:0,st:1}]},
+  {id:'lt-grey',emoji:'👕',name:'Long Tee Grey',photo:null,v:[{s:'S',p:0,st:2},{s:'M',p:0,st:3}]},
+  {id:'lt-black',emoji:'👕',name:'Long Tee Black',photo:null,v:[{s:'S',p:0,st:1}]},
+  {id:'cap-navy',emoji:'🧢',name:'brkfstblend Cap — Navy',photo:null,v:[{s:'フリー',p:4500,st:-1}]},
+  {id:'cap-black',emoji:'🧢',name:'brkfstblend Cap — Black',photo:null,v:[{s:'フリー',p:4500,st:-1}]},
+  {id:'cap-green',emoji:'🧢',name:'brkfstblend Cap — Dark Green',photo:null,v:[{s:'フリー',p:4500,st:-1}]},
+  {id:'tote',emoji:'👜',name:'brkfstblend Tote Bag',photo:null,v:[{s:'フリー',p:0,st:2}]},
+  {id:'lighter',emoji:'🔥',name:'brkfstblend Lighter',photo:null,v:[{s:'フリー',p:0,st:-1}]},
+  {id:'cd',emoji:'💿',name:'CD 1st album',photo:null,v:[{s:'フリー',p:3500,st:-1}]},
+];
+const DEF_METHODS=[
+  {id:'cash',name:'現金',color:'#3fa76e',needsChange:true},
+  {id:'paypay',name:'PayPay',color:'#ff0033',needsChange:false},
+];
+
+/* ── STATE ──────────────────────────────── */
+let S={
+  lang:'ja',theme:'dark',appName:'brkfstblend',logo:null,
+  successMsg:'',successSound:true,lowStockThreshold:3,
+  gig:{name:'',date:new Date().toISOString().slice(0,10)},
+  products:JSON.parse(JSON.stringify(DEF_PRODUCTS)),
+  payMethods:JSON.parse(JSON.stringify(DEF_METHODS)),
+  basket:[],transactions:[],
+  screen:'pos',stab:0,setupDone:false,
+};
+
+/* ── STORAGE ────────────────────────────── */
+function save(){try{localStorage.setItem('bpos2',JSON.stringify(S))}catch(e){}}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('bpos2')||'null');
+    if(d){
+      S={...S,...d};
+      // migrate old product format (ja/en → name)
+      if(S.products?.length) S.products=S.products.map(p=>({
+        id:p.id||('p_'+Date.now()+Math.random()),
+        emoji:p.emoji||'📦',
+        name:p.name||(p.ja||p.nameJA||p.en||p.nameEN||'Product'),
+        photo:p.photo||null,
+        v:p.v||[]
+      }));
+      if(!S.products?.length) S.products=JSON.parse(JSON.stringify(DEF_PRODUCTS));
+      if(!S.payMethods?.length) S.payMethods=JSON.parse(JSON.stringify(DEF_METHODS));
+    }
+  }catch(e){}
+}
+
+/* ── UTILS ──────────────────────────────── */
+const t=k=>(T[S.lang]||T.ja)[k]||k;
+const fmt=n=>Number(n).toLocaleString('ja-JP');
+const genId=()=>'p_'+Date.now()+'_'+Math.floor(Math.random()*1000);
+let _tt;
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2200);}
+function getVariant(pid,s){return S.products.find(p=>p.id===pid)?.v.find(v=>v.s===s);}
+function getStock(pid,s){
+  const v=getVariant(pid,s);if(!v||v.st<0)return null;
+  const sold=S.transactions.reduce((n,tx)=>{const it=tx.items.find(i=>i.pid===pid&&i.s===s);return n+(it?it.qty:0);},0)
+    +S.basket.filter(i=>i.pid===pid&&i.s===s).reduce((n,i)=>n+i.qty,0);
+  return Math.max(0,v.st-sold);
+}
+function basketTotal(){return S.basket.reduce((n,i)=>n+i.p*i.qty,0);}
+function playSuccess(){
+  if(!S.successSound)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[880,.08],[1100,.2]].forEach(([freq,t])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=freq;g.gain.setValueAtTime(0,ctx.currentTime+t);
+      g.gain.linearRampToValueAtTime(.18,ctx.currentTime+t+.02);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+.3);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.35);
+    });
+  }catch(e){}
+}
+
+/* ── BASKET ─────────────────────────────── */
+function addToBasket(pid,s){
+  const v=getVariant(pid,s);if(!v)return;
+  const st=getStock(pid,s);if(st!==null&&st<=0){toast(t('stockOut'));return;}
+  const ex=S.basket.find(i=>i.pid===pid&&i.s===s);
+  if(ex){ex.qty++;}else{
+    const p=S.products.find(p=>p.id===pid);
+    const suf=s!=='フリー'?' '+s:'';
+    S.basket.push({pid,s,name:p.name+suf,emoji:p.emoji,photo:p.photo,p:v.p,origP:v.p,qty:1,priceNote:null});
+  }
+  save();closeSheet();renderPOS();
+}
+function updQty(idx,d){
+  const it=S.basket[idx];if(!it)return;
+  if(d>0){const st=getStock(it.pid,it.s);if(st!==null&&it.qty>=st){toast(t('stockOut'));return;}}
+  it.qty+=d;if(it.qty<=0)S.basket.splice(idx,1);
+  save();renderPOS();
+}
+function clearBasket(){S.basket=[];save();renderPOS();}
+
+/* ── TRANSACTIONS ───────────────────────── */
+function completeSale(methodId){
+  if(!S.basket.length)return;
+  const method=S.payMethods.find(m=>m.id===methodId)||S.payMethods[0];
+  const tx={id:Date.now(),n:S.transactions.length+1,gig:S.gig.name,date:S.gig.date,
+    method:method.name,methodColor:method.color,total:basketTotal(),
+    items:S.basket.map(i=>({pid:i.pid,s:i.s,name:i.name,p:i.p,origP:i.origP,qty:i.qty,priceNote:i.priceNote}))};
+  S.transactions.push(tx);S.basket=[];save();showSuccess(tx,method);
+}
+function delTxn(id){
+  const idx=S.transactions.findIndex(x=>x.id===+id);if(idx<0)return;
+  S.transactions.splice(idx,1);S.transactions.forEach((x,i)=>x.n=i+1);
+  save();renderLog();toast(t('undone'));
+}
+
+/* ── EXPORT ─────────────────────────────── */
+function buildRows(){
+  return S.transactions.flatMap(tx=>tx.items.map(it=>[
+    tx.date,tx.gig,it.name,it.qty,it.p,it.p*it.qty,tx.method,it.priceNote||'']));
+}
+function doExportCopy(){
+  // No header row in copy — data only for direct paste into spreadsheet
+  const txt=buildRows().map(r=>r.slice(0,7).join('\t')).join('\n');
+  try{navigator.clipboard.writeText(txt).then(()=>toast(t('copied')));}
+  catch(e){const a=document.createElement('textarea');a.value=txt;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast(t('copied'));}
+}
+function doExportCSV(){
+  const hdr='日付,案件名,商品,数量,単価,売上,支払方法,備考';
+  const csv=hdr+'\n'+buildRows().map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const u=URL.createObjectURL(b);const a=document.createElement('a');
+  a.href=u;a.download=`${S.gig.name||'merch'}-${S.gig.date}.csv`;a.click();URL.revokeObjectURL(u);
+}
+
+/* ── SHEET ──────────────────────────────── */
+function openSheet(html){document.getElementById('sh-body').innerHTML=html;document.getElementById('overlay').classList.add('show');}
+function closeSheet(){document.getElementById('overlay').classList.remove('show');}
+
+/* ── SIZE PICKER ────────────────────────── */
+function openSizePicker(pid){
+  const p=S.products.find(x=>x.id===pid);if(!p)return;
+  if(p.v.length===1){addToBasket(pid,p.v[0].s);return;}
+  openSheet(`
+    <div class="sh-title">${p.name} ${p.emoji}</div>
+    <div class="sz-grid">
+      ${p.v.map(v=>{
+        const st=getStock(pid,v.s),out=st!==null&&st===0,low=st!==null&&st>0&&st<=S.lowStockThreshold;
+        return`<button class="sz-btn${out?' sz-out':''}" onclick="addToBasket('${pid}','${v.s}')">
+          <span class="sz-label">${v.s}</span>
+          <span class="sz-price">${v.p?'¥'+fmt(v.p):'—'}</span>
+          <span class="sz-stock${low?' sz-low':''}">${st===null?'':out?t('stockOut'):t('left')+' '+st}</span>
+        </button>`;
+      }).join('')}
+    </div>`);
+}
+
+/* ── PAYMENT HANDLING ───────────────────── */
+let _payMethodId='',_payTotal=0;
+function handlePayment(methodId){
+  if(!S.basket.length)return;
+  const method=S.payMethods.find(m=>m.id===methodId);if(!method)return;
+  _payMethodId=methodId;_payTotal=basketTotal();
+  if(method.needsChange) openChangeModal(method);
+  else openConfirmModal(method);
+}
+// Change calculator modal
+function openChangeModal(method){
+  openSheet(`
+    <div class="pm-wrap">
+      <div class="pm-total mono">¥${fmt(_payTotal)}</div>
+      <div class="pm-label">${t('recv')}</div>
+      <input class="pm-recv mono" id="pm-recv" type="number" inputmode="numeric"
+        placeholder="¥0" oninput="onRecv(this.value)">
+      <div id="pm-change-row" class="pm-change" style="display:none">
+        <span class="pm-change-label">${t('change')}</span>
+        <span class="pm-change-val mono" id="pm-cv"></span>
+      </div>
+      <button class="pm-confirm" style="background:${method.color}"
+        onclick="onConfirmPay('${method.id}')">${method.name}で完了</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('pm-recv')?.focus(),80);
+}
+function onRecv(val){
+  const r=+val||0,d=r-_payTotal;
+  const row=document.getElementById('pm-change-row'),cv=document.getElementById('pm-cv');
+  if(!row||!cv)return;
+  row.style.display='flex';cv.textContent='¥'+fmt(Math.abs(d));
+  cv.className='pm-change-val mono'+(d<0?' pm-change-neg':'');
+}
+// Simple confirm modal (non-cash methods)
+function openConfirmModal(method){
+  openSheet(`
+    <div class="pm-wrap">
+      <div class="pm-simple-amt mono" style="color:${method.color}">¥${fmt(_payTotal)}</div>
+      <div class="pm-simple-hint">${method.name}で受け取りを確認してからタップ</div>
+      <button class="pm-confirm" style="background:${method.color}"
+        onclick="onConfirmPay('${method.id}')">✓ ${method.name}で完了</button>
+    </div>`);
+}
+function onConfirmPay(methodId){closeSheet();completeSale(methodId);renderPOS();}
+
+/* ── PRICE OVERRIDE ─────────────────────── */
+function openPriceOverride(idx){
+  const it=S.basket[idx];if(!it)return;
+  openSheet(`
+    <div class="sh-title">${t('overrideLbl')}</div>
+    <div class="pe-body">
+      <div class="po-orig">${it.name} — ${t('origPrice')} ¥${fmt(it.origP)}</div>
+      <div class="po-fields">
+        <div>
+          <div class="pe-label">${t('newPrice')}</div>
+          <input id="po-price" type="number" inputmode="numeric" value="${it.p}"
+            style="font-size:24px;text-align:center;font-family:'DM Mono',monospace" placeholder="0">
+        </div>
+        <div>
+          <div class="pe-label">${t('reason')}</div>
+          <input id="po-note" value="${it.priceNote||''}" placeholder="${S.lang==='en'?'Band friend, leftover sale...':'友人割引、端数サービス...'}">
+        </div>
+      </div>
+      <div class="pe-actions" style="margin-top:4px">
+        <button class="pe-save" onclick="applyOverride(${idx})">${t('apply')}</button>
+        <button class="pe-delete" onclick="closeSheet()">${t('cancelBtn')}</button>
+      </div>
+    </div>`);
+  setTimeout(()=>document.getElementById('po-price')?.focus(),80);
+}
+function applyOverride(idx){
+  const np=+document.getElementById('po-price')?.value||0;
+  const note=document.getElementById('po-note')?.value||null;
+  S.basket[idx].p=np;S.basket[idx].priceNote=note;
+  save();closeSheet();renderPOS();
+}
+
+/* ── PRODUCT EDITOR ─────────────────────── */
+let editProd=null;
+function openProductEditor(prodId){
+  if(prodId==='__new__'){
+    editProd={id:genId(),emoji:'📦',name:'',photo:null,v:[{s:'フリー',p:0,st:0}]};
+  }else{
+    const p=S.products.find(x=>x.id===prodId);
+    if(!p)return;
+    editProd=JSON.parse(JSON.stringify(p));
+  }
+  openSheet(buildProdEditorHTML());
+  setTimeout(()=>document.getElementById('pe-name')?.focus(),80);
+}
+function buildProdEditorHTML(){
+  const isNew=!S.products.find(p=>p.id===editProd.id);
+  return`
+    <div class="sh-title">${isNew?t('newProd'):t('editProd')}</div>
+    <div class="pe-body">
+      <div class="pe-photo-area">
+        <div class="pe-thumb" id="pe-thumb-area">
+          ${editProd.photo?`<img src="${editProd.photo}" alt="">`:`<span style="font-size:28px">${editProd.emoji||'📦'}</span>`}
+        </div>
+        <div class="pe-photo-btns">
+          <button class="pe-photo-btn" onclick="document.getElementById('prod-photo-inp').click()">${editProd.photo?t('uploadPhotoBtn'):t('photoLbl')}</button>
+          ${editProd.photo?`<button class="pe-photo-btn" onclick="editProd.photo=null;refreshThumb()">✕ ${t('noPhotoBtn')}</button>`:''}
+        </div>
+      </div>
+      <div>
+        <div class="pe-label">${t('nameLbl')}</div>
+        <input id="pe-name" value="${editProd.name||''}" oninput="editProd.name=this.value" placeholder="${S.lang==='en'?'New T-Shirt':'新商品'}">
+      </div>
+      <div>
+        <div class="pe-label">${t('emojiLbl')}</div>
+        <input value="${editProd.emoji||''}" oninput="editProd.emoji=this.value;refreshThumb()" placeholder="👕" style="font-size:24px;width:80px;text-align:center">
+      </div>
+      <div>
+        <div class="pe-label">サイズ / バリエーション</div>
+        <div class="pv-labels"><span>${S.lang==='en'?'Size':'サイズ'}</span><span>${t('price')}</span><span>${t('stock')}</span><span></span></div>
+        <div class="pv-edit" id="pe-variants">${buildVariantsHTML()}</div>
+        <button class="pv-add-btn" style="margin-top:8px" onclick="addVariant()">${t('addSize')}</button>
+      </div>
+      <div class="pe-actions">
+        <button class="pe-save" onclick="saveProduct()">${t('saveBtn')}</button>
+        ${!isNew?`<button class="pe-delete" onclick="deleteProduct('${editProd.id}')">${t('deleteBtn')}</button>`:''}
+      </div>
+    </div>`;
+}
+function buildVariantsHTML(){
+  return editProd.v.map((v,i)=>`
+    <div class="pv-edit-row">
+      <input value="${v.s||''}" oninput="editProd.v[${i}].s=this.value" placeholder="M" style="text-align:center">
+      <input type="number" inputmode="numeric" value="${v.p||''}" oninput="editProd.v[${i}].p=+this.value||0" placeholder="0">
+      <input type="number" inputmode="numeric" value="${v.st<0?'':v.st}" oninput="editProd.v[${i}].st=this.value===''?-1:+this.value" placeholder="—">
+      ${editProd.v.length>1?`<button class="pv-del-btn" onclick="removeVariant(${i})">✕</button>`:`<span style="width:28px"></span>`}
+    </div>`).join('');
+}
+function refreshThumb(){
+  const el=document.getElementById('pe-thumb-area');
+  if(el)el.innerHTML=editProd.photo?`<img src="${editProd.photo}" alt="">`:`<span style="font-size:28px">${editProd.emoji||'📦'}</span>`;
+}
+function addVariant(){editProd.v.push({s:'',p:0,st:0});const el=document.getElementById('pe-variants');if(el)el.innerHTML=buildVariantsHTML();}
+function removeVariant(i){if(editProd.v.length<=1)return;editProd.v.splice(i,1);const el=document.getElementById('pe-variants');if(el)el.innerHTML=buildVariantsHTML();}
+function saveProduct(){
+  if(!editProd.name?.trim()){toast(S.lang==='en'?'Enter a product name':'商品名を入力してください');return;}
+  const idx=S.products.findIndex(p=>p.id===editProd.id);
+  if(idx>=0)S.products[idx]=editProd;else S.products.push(editProd);
+  save();closeSheet();renderSettings();renderPOS();
+}
+function deleteProduct(id){
+  if(!confirm(S.lang==='en'?'Delete this product?':'この商品を削除しますか？'))return;
+  S.products=S.products.filter(p=>p.id!==id);
+  save();closeSheet();renderSettings();renderPOS();
+}
+function moveProduct(idx,d){
+  const ni=idx+d;if(ni<0||ni>=S.products.length)return;
+  [S.products[idx],S.products[ni]]=[S.products[ni],S.products[idx]];
+  save();renderSettings();renderPOS();
+}
+function handleProdPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{const img=new Image();img.onload=()=>{
+    const c=document.createElement('canvas');const mx=300,ratio=Math.min(mx/img.width,mx/img.height);
+    c.width=img.width*ratio;c.height=img.height*ratio;
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    editProd.photo=c.toDataURL('image/jpeg',.82);refreshThumb();
+  };img.src=ev.target.result;};
+  r.readAsDataURL(f);e.target.value='';
+}
+
+/* ── PAYMENT METHOD EDITOR ──────────────── */
+let editMethod=null;
+function openMethodEditor(methodId){
+  if(methodId==='__new__'){
+    editMethod={id:'m_'+Date.now(),name:'',color:'#555555',needsChange:false};
+  }else{
+    const m=S.payMethods.find(x=>x.id===methodId);if(!m)return;
+    editMethod={...m};
+  }
+  openSheet(buildMethodEditorHTML());
+}
+function buildMethodEditorHTML(){
+  const isNew=!S.payMethods.find(m=>m.id===editMethod.id);
+  return`
+    <div class="sh-title">${isNew?t('newMeth'):t('editMeth')}</div>
+    <div class="pe-body">
+      <div>
+        <div class="pe-label">${S.lang==='en'?'Method name':'方法名'}</div>
+        <input id="me-name" value="${editMethod.name||''}" oninput="editMethod.name=this.value" placeholder="カード">
+      </div>
+      <div>
+        <div class="pe-label">${t('colorLbl')}</div>
+        <div class="color-row">
+          <div class="color-preview" id="me-color-prev" style="background:${editMethod.color}"></div>
+          <input type="color" id="me-color" value="${editMethod.color}"
+            oninput="editMethod.color=this.value;document.getElementById('me-color-prev').style.background=this.value"
+            style="width:50px;height:40px;border:none;cursor:pointer;background:none;padding:0">
+          <span style="font-size:13px;color:var(--tm)">${editMethod.color}</span>
+        </div>
+      </div>
+      <div class="s-row" style="padding:0;border:none">
+        <div class="s-row-label">${t('changeCalc')}<div class="s-row-sub">${S.lang==='en'?'Show change calculator at checkout':'レジでお釣りを計算する'}</div></div>
+        <button id="me-change-btn" class="toggle-btn ${editMethod.needsChange?'on':''}" onclick="editMethod.needsChange=!editMethod.needsChange;this.className='toggle-btn '+(editMethod.needsChange?'on':'');this.textContent=editMethod.needsChange?'ON':'OFF'">${editMethod.needsChange?'ON':'OFF'}</button>
+      </div>
+      <div class="pe-actions">
+        <button class="pe-save" onclick="saveMethod()">${t('saveBtn')}</button>
+        ${!isNew&&S.payMethods.length>1?`<button class="pe-delete" onclick="deleteMethod('${editMethod.id}')">${t('deleteBtn')}</button>`:''}
+      </div>
+    </div>`;
+}
+function saveMethod(){
+  if(!editMethod.name?.trim()){toast(S.lang==='en'?'Enter a name':'名前を入力してください');return;}
+  const idx=S.payMethods.findIndex(m=>m.id===editMethod.id);
+  if(idx>=0)S.payMethods[idx]=editMethod;else S.payMethods.push(editMethod);
+  save();closeSheet();renderSettings();renderPOS();
+}
+function deleteMethod(id){
+  if(!confirm(S.lang==='en'?'Delete this payment method?':'この支払方法を削除しますか？'))return;
+  S.payMethods=S.payMethods.filter(m=>m.id!==id);
+  save();closeSheet();renderSettings();renderPOS();
+}
+
+/* ── SUCCESS ────────────────────────────── */
+let _st;
+function showSuccess(tx,method){
+  const e=document.getElementById('success');
+  document.getElementById('su-amt').textContent='¥'+fmt(tx.total);
+  document.getElementById('su-meth').textContent=method.name;
+  document.getElementById('su-msg').textContent=S.successMsg||'';
+  document.getElementById('su-tap').textContent=t('tap');
+  e.classList.add('show');playSuccess();
+  clearTimeout(_st);_st=setTimeout(dismissSuccess,2000);
+}
+function dismissSuccess(){
+  document.getElementById('success').classList.remove('show');
+  renderPOS();renderLog();
+}
+
+/* ── RENDER POS ─────────────────────────── */
+function renderPOS(){
+  const basket=S.basket,total=basketTotal();
+  // Product grid
+  document.getElementById('prod-grid').innerHTML=S.products.map(p=>{
+    const cnt=basket.filter(i=>i.pid===p.id).reduce((n,i)=>n+i.qty,0);
+    const minP=Math.min(...p.v.map(v=>v.p)),maxP=Math.max(...p.v.map(v=>v.p));
+    const prStr=minP===0&&maxP===0?'—':minP===maxP?'¥'+fmt(minP):'¥'+fmt(minP)+'〜';
+    const allOut=p.v.every(v=>{const s=getStock(p.id,v.s);return s!==null&&s===0;});
+    const anyLow=p.v.some(v=>{const s=getStock(p.id,v.s);return s!==null&&s>0&&s<=S.lowStockThreshold;});
+    const hp=!!p.photo;
+    return`<div class="pc${allOut?' out-of-stock':''}${hp?' has-photo':''}" onclick="openSizePicker('${p.id}')">
+      ${cnt>0?`<div class="pc-bbadge">${cnt}</div>`:''}
+      ${anyLow&&!allOut?`<div class="pc-lbadge">${S.lang==='en'?'Low':'少'}</div>`:''}
+      ${hp?`<img class="pc-photo" src="${p.photo}" alt=""><div class="pc-photo-overlay"></div>`:''}
+      ${hp?`<span class="pc-emoji">${p.emoji}</span>`:`<span class="pc-emoji">${p.emoji}</span>`}
+      <span class="pc-name">${p.name}</span>
+      <span class="pc-price">${prStr}</span>
+      ${!hp&&p.v.length>1?`<span class="pc-sizes">${p.v.map(v=>v.s).join(' · ')}</span>`:''}
+    </div>`;
+  }).join('');
+  // Basket
+  const baskEl=document.getElementById('basket'),payEl=document.getElementById('pay-row');
+  if(!basket.length){
+    baskEl.innerHTML=`<div class="bsk-empty">${t('emptyBasket')}</div>`;
+    payEl.innerHTML='';
+  }else{
+    baskEl.innerHTML=`
+      ${basket.map((it,idx)=>{
+        const overridden=it.p!==it.origP;
+        return`<div class="bsk-item">
+          <span class="bsk-emoji">${it.emoji}</span>
+          <div class="bsk-info">
+            <div class="bsk-name">${it.name}</div>
+            ${it.priceNote?`<div class="bsk-note">✏ ${it.priceNote}</div>`:''}
+          </div>
+          <div class="bsk-qty">
+            <button class="qty-btn" onclick="updQty(${idx},-1)">−</button>
+            <span class="qty-num">${it.qty}</span>
+            <button class="qty-btn" onclick="updQty(${idx},1)">＋</button>
+          </div>
+          <div class="bsk-price${overridden?' overridden':''}" onclick="openPriceOverride(${idx})" title="${S.lang==='en'?'Tap to change price':'タップで価格変更'}">
+            ${overridden?`<span style="font-size:10px;color:var(--tm);text-decoration:line-through">¥${fmt(it.origP*it.qty)}</span><br>`:''}
+            ¥${fmt(it.p*it.qty)}
+          </div>
+        </div>`;
+      }).join('')}
+      <div class="bsk-foot">
+        <div class="bsk-total mono">¥${fmt(total)}</div>
+        <button class="bsk-clear" onclick="clearBasket()">${t('clear')}</button>
+      </div>`;
+    payEl.innerHTML=S.payMethods.map(m=>
+      `<button class="pay-btn" style="background:${m.color};color:#fff" onclick="handlePayment('${m.id}')">
+        ${m.name}<span class="pay-amt">¥${fmt(total)}</span>
+      </button>`).join('');
+  }
+}
+
+/* ── RENDER LOG ─────────────────────────── */
+function renderLog(){
+  const txns=S.transactions;
+  // Build per-method totals
+  const methodTotals={};
+  txns.forEach(tx=>{methodTotals[tx.method]=(methodTotals[tx.method]||0)+tx.total;});
+  const grand=Object.values(methodTotals).reduce((a,b)=>a+b,0);
+  // Item map
+  const imap={};
+  txns.forEach(tx=>tx.items.forEach(it=>{
+    if(!imap[it.name])imap[it.name]={qty:0,rev:0};
+    imap[it.name].qty+=it.qty;imap[it.name].rev+=it.p*it.qty;
+  }));
+  const statCards=Object.entries(methodTotals).map(([name,val])=>{
+    const m=S.payMethods.find(x=>x.name===name);
+    return`<div class="stat-card"><div class="stat-label">${name}</div><div class="stat-val" style="color:${m?.color||'var(--ac)'}"">¥${fmt(val)}</div></div>`;
+  }).join('')
+  +`<div class="stat-card"><div class="stat-label">${t('grand')}</div><div class="stat-val">¥${fmt(grand)}</div></div>`
+  +`<div class="stat-card"><div class="stat-label">${t('txnCnt')}</div><div class="stat-val">${txns.length}</div></div>`;
+  document.getElementById('log-content').innerHTML=`
+    <div class="stats-grid">${statCards}</div>
+    ${Object.keys(imap).length?`
+      <div class="sec-head">${t('itemsSold')}</div>
+      <div class="s-group">
+        ${Object.entries(imap).map(([n,v])=>`<div class="log-item-row">
+          <span class="lir-name">${n}</span>
+          <span class="lir-qty">${v.qty}点</span>
+          <span class="lir-rev">¥${fmt(v.rev)}</span>
+        </div>`).join('')}
+      </div>
+      <div class="exp-row">
+        <button class="exp-btn" onclick="doExportCopy()">${t('copyBtn')}</button>
+        <button class="exp-btn" onclick="doExportCSV()">${t('csvBtn')}</button>
+      </div>`:''}
+    ${txns.length?`
+      <div class="sec-head">${t('txnLog')}</div>
+      ${[...txns].reverse().map(tx=>{
+        const desc=tx.items.map(i=>i.name+'×'+i.qty).join(', ');
+        return`<div class="txn-card">
+          <span class="txn-n">#${tx.n}</span>
+          <div class="txn-body">
+            <div class="txn-desc">${desc}</div>
+            <div class="txn-meta">${tx.date}${tx.gig?' · '+tx.gig:''}</div>
+          </div>
+          <span class="txn-amt">¥${fmt(tx.total)}</span>
+          <span class="txn-badge" style="background:${tx.methodColor||'#555'}">${tx.method}</span>
+          <button class="del-txn" onclick="if(confirm('${S.lang==='en'?'Delete?':'削除しますか？'}'))delTxn(${tx.id})">✕</button>
+        </div>`;
+      }).join('')}`:`<div class="empty-log">${t('noTxns')}</div>`}`;
+}
+
+/* ── RENDER SETTINGS ────────────────────── */
+function renderSettings(){
+  const tabs=t('tabs');
+  document.getElementById('stabs').innerHTML=
+    tabs.map((tab,i)=>`<button class="stab${S.stab===i?' active':''}" onclick="setSTab(${i})">${tab}</button>`).join('');
+  const c=document.getElementById('s-content');
+  if(S.stab===0){ // GIG
+    c.innerHTML=`
+      <div class="gig-block">
+        <div><label class="setup-label">${t('gigName')}</label>
+          <input value="${S.gig.name}" placeholder="${S.lang==='en'?'Outdoor Park Osaka':'Outdoor Park 大阪'}"
+            oninput="S.gig.name=this.value;save();updHeader()"></div>
+        <div><label class="setup-label">${t('gigDate')}</label>
+          <input type="date" value="${S.gig.date}" oninput="S.gig.date=this.value;save()"></div>
+        <div><label class="setup-label">${t('lowStockLabel')}</label>
+          <input type="number" inputmode="numeric" value="${S.lowStockThreshold}" min="1" max="20" style="max-width:80px"
+            oninput="S.lowStockThreshold=+this.value||3;save()"></div>
+        <button class="new-gig-btn" onclick="startNewGig()">${t('newGig')}</button>
+      </div>`;
+  }else if(S.stab===1){ // DESIGN
+    c.innerHTML=`
+      <div class="s-group">
+        <div class="s-row">
+          <div class="s-row-label">${t('lang')}</div>
+          <div class="lang-pill">
+            <button class="lang-opt${S.lang==='ja'?' active':''}" onclick="setLang('ja')">日本語</button>
+            <button class="lang-opt${S.lang==='en'?' active':''}" onclick="setLang('en')">English</button>
+          </div>
+        </div>
+        <div class="s-row">
+          <div class="s-row-label">${t('appName')}</div>
+          <input value="${S.appName}" oninput="S.appName=this.value;save();updHeader()">
+        </div>
+        <div class="s-row">
+          <div class="s-row-label">${t('logo')}</div>
+          <div class="logo-btn" onclick="document.getElementById('logo-inp').click()">
+            ${S.logo?`<img src="${S.logo}" alt="">`:`<span style="font-size:26px">📷</span><span>Upload</span>`}
+          </div>
+        </div>
+        <div class="s-row">
+          <div class="s-row-label">${t('successMsg')}<div class="s-row-sub">${S.lang==='en'?'Shown on sale screen':'販売完了時に表示'}</div></div>
+          <input value="${S.successMsg||''}" placeholder="${S.lang==='en'?'Thank you!':'ありがとう！'}" style="max-width:180px"
+            oninput="S.successMsg=this.value;save()">
+        </div>
+        <div class="s-row">
+          <div class="s-row-label">${t('successSound')}</div>
+          <button class="toggle-btn${S.successSound?' on':''}" onclick="S.successSound=!S.successSound;save();renderSettings()">${S.successSound?'ON':'OFF'}</button>
+        </div>
+      </div>
+      <div class="s-group">
+        <div class="s-row"><div class="s-row-label">${t('theme')}</div></div>
+        <div class="theme-row">
+          ${THEMES.map(th=>`<div class="theme-sw${S.theme===th.id?' active':''}" style="background:${th.bg}"
+            onclick="setTheme('${th.id}')">${S.theme===th.id?'✓':th.emoji}</div>`).join('')}
+        </div>
+      </div>`;
+  }else if(S.stab===2){ // PRODUCTS
+    c.innerHTML=`
+      ${S.products.map((p,pi)=>`
+        <div class="ps-card">
+          <div class="ps-thumb">
+            ${p.photo?`<img src="${p.photo}" alt="">`:`<span>${p.emoji}</span>`}
+          </div>
+          <div class="ps-info">
+            <div class="ps-name">${p.name}</div>
+            <div class="ps-detail">${p.v.length}${S.lang==='en'?' var · ':'種 · '}¥${fmt(Math.min(...p.v.map(v=>v.p)))}〜</div>
+          </div>
+          <div class="ps-ctrls">
+            <button class="ps-btn" onclick="moveProduct(${pi},-1)" ${pi===0?'disabled':''}>↑</button>
+            <button class="ps-btn" onclick="moveProduct(${pi},1)" ${pi===S.products.length-1?'disabled':''}>↓</button>
+            <button class="ps-btn" onclick="openProductEditor('${p.id}')">✏</button>
+          </div>
+        </div>`).join('')}
+      <button class="add-btn" onclick="openProductEditor('__new__')">${t('addProd')}</button>`;
+  }else{ // PAYMENT METHODS
+    c.innerHTML=`
+      ${S.payMethods.map(m=>`
+        <div class="pm-card">
+          <div class="pm-dot" style="background:${m.color}"></div>
+          <div class="pm-mname">${m.name}</div>
+          ${m.needsChange?`<span class="pm-badge">${S.lang==='en'?'Change calc':'お釣り'}</span>`:''}
+          <button class="ps-btn" onclick="openMethodEditor('${m.id}')">✏</button>
+        </div>`).join('')}
+      <button class="add-btn" onclick="openMethodEditor('__new__')">${t('addMeth')}</button>`;
+  }
+}
+function setSTab(i){S.stab=i;save();renderSettings();}
+function setLang(l){S.lang=l;document.documentElement.lang=l;save();render();}
+function setTheme(id){
+  S.theme=id;document.documentElement.dataset.theme=id;
+  const th=THEMES.find(x=>x.id===id);
+  if(th)document.getElementById('theme-meta').content=th.bg;
+  save();renderSettings();
+}
+function startNewGig(){
+  if(!confirm(t('confirmNew')))return;
+  S.transactions=[];S.basket=[];S.gig={name:'',date:new Date().toISOString().slice(0,10)};
+  save();render();toast(S.lang==='en'?'New gig started':'新しいギグを開始しました');
+}
+
+/* ── LOGO ───────────────────────────────── */
+function handleLogo(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{
+    const c=document.createElement('canvas');const mx=200,ratio=Math.min(mx/img.width,mx/img.height);
+    c.width=img.width*ratio;c.height=img.height*ratio;
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    S.logo=c.toDataURL('image/jpeg',.82);save();updHeader();renderSettings();
+    const ati=document.getElementById('ati');if(ati)ati.href=S.logo;
+  };img.src=ev.target.result;};
+  r.readAsDataURL(f);e.target.value='';
+}
+
+/* ── NAV + HEADER ───────────────────────── */
+function renderNav(){
+  const items=[{s:'pos',icon:'🛒',key:'pos'},{s:'log',icon:'📊',key:'log'},{s:'settings',icon:'⚙️',key:'settings'}];
+  document.getElementById('nav').innerHTML=items.map(it=>
+    `<button class="nav-btn${S.screen===it.s?' active':''}" onclick="showScreen('${it.s}')">
+      <span class="nav-icon">${it.icon}</span><span>${t(it.key)}</span>
+    </button>`).join('');
+}
+function updHeader(){
+  const nm=document.getElementById('hdr-name'),lg=document.getElementById('hdr-logo'),gi=document.getElementById('hdr-gig');
+  document.getElementById('page-title').textContent=S.appName||'brkfstblend';
+  nm.textContent=S.appName||'brkfstblend';
+  if(S.logo){lg.src=S.logo;lg.classList.remove('hidden');nm.style.display='none';}
+  else{lg.classList.add('hidden');nm.style.display='';}
+  gi.textContent=S.gig.name||(S.lang==='en'?'(no gig set)':'(ギグ未設定)');
+}
+function showScreen(s){
+  S.screen=s;save();
+  document.querySelectorAll('.screen').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('screen-'+s).classList.remove('hidden');
+  renderNav();
+  if(s==='pos')renderPOS();else if(s==='log')renderLog();else renderSettings();
+}
+function render(){updHeader();showScreen(S.screen);}
+
+/* ── SETUP ──────────────────────────────── */
+function showSetup(){
+  document.getElementById('setup').classList.remove('hidden');
+  document.getElementById('main').classList.add('hidden');
+  document.getElementById('su-date').value=S.gig.date;
+  document.getElementById('su-themes').innerHTML=THEMES.map(th=>
+    `<div class="setup-sw${S.theme===th.id?' active':''}" style="background:${th.bg};font-size:20px"
+      onclick="pickTheme('${th.id}')">${th.emoji}</div>`).join('');
+}
+function pickTheme(id){
+  S.theme=id;document.documentElement.dataset.theme=id;
+  const th=THEMES.find(x=>x.id===id);
+  if(th)document.getElementById('theme-meta').content=th.bg;
+  document.querySelectorAll('.setup-sw').forEach((el,i)=>el.classList.toggle('active',THEMES[i].id===id));
+}
+function finishSetup(){
+  S.gig.name=document.getElementById('su-gig').value.trim();
+  S.gig.date=document.getElementById('su-date').value||S.gig.date;
+  S.setupDone=true;save();
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('main').classList.remove('hidden');
+  render();
+}
+
+/* ── INIT ───────────────────────────────── */
+load();
+document.documentElement.dataset.theme=S.theme;
+document.documentElement.lang=S.lang;
+const _ith=THEMES.find(x=>x.id===S.theme);
+if(_ith)document.getElementById('theme-meta').content=_ith.bg;
+if(S.logo){const ati=document.getElementById('ati');if(ati)ati.href=S.logo;}
+if(!S.setupDone){showSetup();}
+else{document.getElementById('setup').classList.add('hidden');document.getElementById('main').classList.remove('hidden');render();}
+</script>
+</body>
+</html>
